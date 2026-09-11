@@ -21,8 +21,6 @@
 #define EXTRA_DEBUG(fmt, ...) ESP_LOGD(EXTRA_TAG, fmt, ##__VA_ARGS__)  // Macro for debug-level logging with tag "EXTRA"
 #define EXTRA_ERROR(fmt, ...) ESP_LOGE(EXTRA_TAG, fmt, ##__VA_ARGS__)  // Macro for error-level logging with tag "EXTRA"
 
-esp_err_t gpio_extra_init();                        // Function declaration for initializing GPIO
-esp_err_t gpio_extra_set_level(bool level);         // Function declaration for setting GPIO output level (high/low)
 esp_err_t gpio_wave_init(uint32_t frequency_hz, uint8_t duty_percent);
 esp_err_t gpio_wave_start(void);
 esp_err_t gpio_wave_stop(void);
@@ -35,8 +33,8 @@ typedef struct {
     uint32_t duration_us;
 } gpio_wave_segment_t;
 
-/* Single-channel sequences use GPIO48. Pair sequences use GPIO48 as channel 1
- * and GPIO47 as channel 2. Both pair timelines must have equal total duration. */
+/* Single-channel sequences use GPIO9. Pair sequences use GPIO49 as channel 1
+ * and GPIO50 as channel 2. Both pair timelines must have equal total duration. */
 esp_err_t gpio_sequence_start(const gpio_wave_segment_t *segments,
                               size_t segment_count, bool loop);
 esp_err_t gpio_sequence_stop(void);

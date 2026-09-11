@@ -69,8 +69,7 @@ esp_err_t touch_init(void)
             .mirror_y = false,    // Do not mirror Y
         },
     };
-    tp_cfg.driver_data = (void*)&io_config.dev_addr;
-    
+
     // Create I2C panel I/O
     err = esp_lcd_new_panel_io_i2c((i2c_master_bus_handle_t)i2c_bus_handle, &io_config, &tp_io_handle);
     if (err != ESP_OK)

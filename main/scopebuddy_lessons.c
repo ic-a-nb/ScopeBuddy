@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define CH1_CONNECTION "CH1 an GPIO48, Masse an GND."
+#define CH1_CONNECTION "CH1 an GPIO49, Masse an GND."
 
 static const scope_lesson_definition_t lessons[SCOPEBUDDY_LESSON_COUNT] = {
     { .id = SCOPE_LESSON_PERIODIC, .title = "PERIODISCHES SIGNAL", .category = "GRUNDLAGEN",
@@ -56,37 +56,37 @@ static const scope_lesson_definition_t lessons[SCOPEBUDDY_LESSON_COUNT] = {
     { .id = SCOPE_LESSON_TRIGGER_RESPONSE, .title = "TRIGGER-ANTWORT", .category = "EREIGNISSE",
       .summary = "Triggerbreite, Antwortbreite und Reaktionszeit",
       .learning_objective = "Pulsbreiten und die Verzögerung zwischen zwei Kanälen bestimmen.",
-      .connection_hint = "CH1 an GPIO48, CH2 an GPIO47, gemeinsame Masse an GND.",
+      .connection_hint = "CH1 an GPIO49, CH2 an GPIO50, gemeinsame Masse an GND.",
       .trigger_hint = "Auf die steigende Flanke von CH1 triggern.",
       .required_channels = 2 },
     { .id = SCOPE_LESSON_PHASE_SHIFT, .title = "PHASENVERSCHIEBUNG", .category = "ZEITBEZIEHUNGEN",
       .summary = "Periodendauer, Zeitversatz und Phasenwinkel",
       .learning_objective = "Aus Periodendauer und Zeitversatz die Phasenlage berechnen.",
-      .connection_hint = "CH1 an GPIO48, CH2 an GPIO47, gemeinsame Masse an GND.",
+      .connection_hint = "CH1 an GPIO49, CH2 an GPIO50, gemeinsame Masse an GND.",
       .trigger_hint = "Auf CH1 triggern und die steigenden Flanken beider Kanäle vergleichen.",
       .required_channels = 2 },
     { .id = SCOPE_LESSON_FREQUENCY_DIVIDER, .title = "FREQUENZTEILER", .category = "TAKTSIGNALE",
       .summary = "Ein- und Ausgangsfrequenz sowie Teilverhältnis",
       .learning_objective = "Zwei Frequenzen messen und daraus das ganzzahlige Teilverhältnis bestimmen.",
-      .connection_hint = "CH1 an GPIO48, CH2 an GPIO47, gemeinsame Masse an GND.",
+      .connection_hint = "CH1 an GPIO49, CH2 an GPIO50, gemeinsame Masse an GND.",
       .trigger_hint = "Auf CH2 triggern und mehrere CH1-Perioden anzeigen.",
       .required_channels = 2 },
     { .id = SCOPE_LESSON_ULTRASONIC, .title = "ULTRASCHALL-ECHO", .category = "SENSORSIGNALE",
       .summary = "Echoverzögerung, Echobreite und Entfernung",
       .learning_objective = "Aus der Breite eines simulierten Echosignals eine Entfernung bestimmen.",
-      .connection_hint = "CH1 an GPIO48 (Trigger), CH2 an GPIO47 (Echo), Masse an GND.",
+      .connection_hint = "CH1 an GPIO49 (Trigger), CH2 an GPIO50 (Echo), Masse an GND.",
       .trigger_hint = "Auf die steigende Triggerflanke von CH1 triggern.",
       .required_channels = 2 },
     { .id = SCOPE_LESSON_GATED_PWM, .title = "FREIGEGEBENE PWM", .category = "STEUERSIGNALE",
       .summary = "Startverzögerung, Pulszahl und Freigabedauer",
       .learning_objective = "Startverzögerung, Pulszahl und Dauer eines freigegebenen PWM-Pakets messen.",
-      .connection_hint = "CH1 an GPIO48 (Freigabe), CH2 an GPIO47 (PWM), Masse an GND.",
+      .connection_hint = "CH1 an GPIO49 (Freigabe), CH2 an GPIO50 (PWM), Masse an GND.",
       .trigger_hint = "Auf die steigende Freigabeflanke von CH1 triggern.",
       .required_channels = 2 },
     { .id = SCOPE_LESSON_QUADRATURE, .title = "QUADRATURGEBER", .category = "ENCODERSIGNALE",
       .summary = "Periodendauer, Flankenversatz und führende Spur",
       .learning_objective = "Aus der führenden Spur die simulierte Drehrichtung bestimmen.",
-      .connection_hint = "CH1 an GPIO48 (Spur A), CH2 an GPIO47 (Spur B), Masse an GND.",
+      .connection_hint = "CH1 an GPIO49 (Spur A), CH2 an GPIO50 (Spur B), Masse an GND.",
       .trigger_hint = "Auf eine steigende Flanke von Spur A triggern.",
       .required_channels = 2 },
 };
@@ -115,8 +115,7 @@ static void set_numeric_measurement(scope_lesson_instance_t *instance, uint8_t i
     measurement->expected_value = expected;
     measurement->tolerance = tolerance;
     measurement->decimals = decimals;
-    snprintf(measurement->value, sizeof(measurement->value), "%.*f%s%s", decimals, expected,
-             unit != NULL && unit[0] != '\0' ? " " : "", unit != NULL ? unit : "");
+    snprintf(measurement->value, sizeof(measurement->value), "%.*f%s%s", decimals, expected, unit != NULL && unit[0] != '\0' ? " " : "", unit != NULL ? unit : "");
 }
 
 static void set_text_measurement(scope_lesson_instance_t *instance, uint8_t index,
@@ -183,49 +182,54 @@ static void format_pwm_measurements(scope_lesson_instance_t *instance)
     double high_us = period_us * channel_a->duty_percent / 100.0;
     double low_us = period_us - high_us;
 
-    switch (instance->lesson->id) {
-    case SCOPE_LESSON_PERIODIC:
-        set_numeric_measurement(instance, 0, "Frequenz", SCOPE_MEASUREMENT_CHANNEL_1,
-                                frequency, frequency * 0.01, "Hz", 2, "f = 1 / T");
-        set_numeric_measurement(instance, 1, "Periodendauer", SCOPE_MEASUREMENT_CHANNEL_1,
-                                period_us, period_us * 0.02, "µs", 2, "T = 1 / f");
-        set_numeric_measurement(instance, 2, "Tastgrad", SCOPE_MEASUREMENT_CHANNEL_1,
-                                channel_a->duty_percent, 1.0, "%", 0, "D = tHigh / T");
-        break;
-    case SCOPE_LESSON_PULSE_WIDTH:
-        set_numeric_measurement(instance, 0, "High-Pulsbreite", SCOPE_MEASUREMENT_CHANNEL_1,
-                                high_us, high_us * 0.03, "µs", 2, "tHigh");
-        set_numeric_measurement(instance, 1, "Low-Pulsbreite", SCOPE_MEASUREMENT_CHANNEL_1,
-                                low_us, low_us * 0.03, "µs", 2, "tLow = T - tHigh");
-        set_numeric_measurement(instance, 2, "Tastgrad", SCOPE_MEASUREMENT_CHANNEL_1,
-                                channel_a->duty_percent, 1.0, "%", 0, "D = tHigh / T");
-        break;
-    case SCOPE_LESSON_TACHOMETER: {
-        uint32_t ppr = instance->parameters.tachometer.pulses_per_revolution;
-        double rpm = ppr > 0 ? 60.0 * frequency / ppr : 0;
-        set_numeric_measurement(instance, 0, "Pulsfrequenz", SCOPE_MEASUREMENT_CHANNEL_1,
-                                frequency, frequency * 0.02, "Hz", 2, "f = 1 / T");
-        set_numeric_measurement(instance, 1, "Periodendauer", SCOPE_MEASUREMENT_CHANNEL_1,
-                                period_us, period_us * 0.03, "µs", 2, "T = 1 / f");
-        set_numeric_measurement(instance, 2, "Drehzahl", SCOPE_MEASUREMENT_DERIVED,
-                                rpm, rpm * 0.03, "U/min", 0, "n = 60 f / PPR");
-        break;
-    }
-    case SCOPE_LESSON_ALTERNATING:
-        set_numeric_measurement(instance, 0, "Frequenz A", SCOPE_MEASUREMENT_CHANNEL_1,
-                                channel_a->frequency_hz, channel_a->frequency_hz * 0.02,
-                                "Hz", 0, "fA = 1 / TA");
-        set_numeric_measurement(instance, 1, "Frequenz B", SCOPE_MEASUREMENT_CHANNEL_1,
-                                instance->realized[1].frequency_hz,
-                                instance->realized[1].frequency_hz * 0.02,
-                                "Hz", 0, "fB = 1 / TB");
-        set_numeric_measurement(instance, 2, "Zustandsdauer A/B", SCOPE_MEASUREMENT_DERIVED,
-                                instance->parameters.alternating.state_duration_ms,
-                                instance->parameters.alternating.state_duration_ms * 0.03,
-                                "ms", 0, "Zeit zwischen Zustandswechseln");
-        break;
-    default:
-        break;
+    
+    switch (instance->lesson->id) 
+	{
+		case SCOPE_LESSON_PERIODIC:
+			set_numeric_measurement(instance, 0, "Frequenz", SCOPE_MEASUREMENT_CHANNEL_1,
+									frequency, frequency * 0.01, "Hz", 2, "f = 1 / T");
+			set_numeric_measurement(instance, 1, "Periodendauer", SCOPE_MEASUREMENT_CHANNEL_1,
+									period_us, period_us * 0.02, "µs", 2, "T = 1 / f");
+			set_numeric_measurement(instance, 2, "Tastgrad", SCOPE_MEASUREMENT_CHANNEL_1,
+									channel_a->duty_percent, 1.0, "%", 0, "D = tHigh / T");
+			break;
+			
+		case SCOPE_LESSON_PULSE_WIDTH:
+			set_numeric_measurement(instance, 0, "High-Pulsbreite", SCOPE_MEASUREMENT_CHANNEL_1,
+									high_us, high_us * 0.03, "µs", 2, "tHigh");
+			set_numeric_measurement(instance, 1, "Low-Pulsbreite", SCOPE_MEASUREMENT_CHANNEL_1,
+									low_us, low_us * 0.03, "µs", 2, "tLow = T - tHigh");
+			set_numeric_measurement(instance, 2, "Tastgrad", SCOPE_MEASUREMENT_CHANNEL_1,
+									channel_a->duty_percent, 1.0, "%", 0, "D = tHigh / T");
+			break;
+			
+		case SCOPE_LESSON_TACHOMETER:
+			uint32_t ppr = instance->parameters.tachometer.pulses_per_revolution;
+			double rpm = ppr > 0 ? 60.0 * frequency / ppr : 0;
+			set_numeric_measurement(instance, 0, "Pulsfrequenz", SCOPE_MEASUREMENT_CHANNEL_1,
+									frequency, frequency * 0.02, "Hz", 2, "f = 1 / T");
+			set_numeric_measurement(instance, 1, "Periodendauer", SCOPE_MEASUREMENT_CHANNEL_1,
+									period_us, period_us * 0.03, "µs", 2, "T = 1 / f");
+			set_numeric_measurement(instance, 2, "Drehzahl", SCOPE_MEASUREMENT_DERIVED,
+									rpm, rpm * 0.03, "U/min", 0, "n = 60 f / PPR");
+			break;
+		
+		case SCOPE_LESSON_ALTERNATING:
+			set_numeric_measurement(instance, 0, "Frequenz A", SCOPE_MEASUREMENT_CHANNEL_1,
+									channel_a->frequency_hz, channel_a->frequency_hz * 0.02,
+									"Hz", 0, "fA = 1 / TA");
+			set_numeric_measurement(instance, 1, "Frequenz B", SCOPE_MEASUREMENT_CHANNEL_1,
+									instance->realized[1].frequency_hz,
+									instance->realized[1].frequency_hz * 0.02,
+									"Hz", 0, "fB = 1 / TB");
+			set_numeric_measurement(instance, 2, "Zustandsdauer A/B", SCOPE_MEASUREMENT_DERIVED,
+									instance->parameters.alternating.state_duration_ms,
+									instance->parameters.alternating.state_duration_ms * 0.03,
+									"ms", 0, "Zeit zwischen Zustandswechseln");
+			break;
+			
+		default:
+			break;
     }
 }
 
@@ -242,8 +246,9 @@ static esp_err_t generate_pwm(scope_lesson_instance_t *instance)
     instance->signal.kind = SCOPE_SIGNAL_PWM;
     instance->signal.data.pwm = (scope_pwm_spec_t){ frequency, (uint8_t)duty };
     set_realized_pwm(&instance->realized[0], frequency, (uint8_t)duty);
-    snprintf(instance->context, sizeof(instance->context),
-             "Miss das periodische Digitalsignal an GPIO48 gegen GND.");
+
+    ESP_LOGI("OUTPUT","generate_pwm: freq=%" PRIu32 " Hz, duty=%" PRIu8 "%%", instance->signal.data.pwm.frequency_hz, instance->signal.data.pwm.duty_percent);
+    snprintf(instance->context, sizeof(instance->context), "Miss das periodische Digitalsignal an GPIO49 gegen GND.");
     format_pwm_measurements(instance);
     return ESP_OK;
 }
@@ -288,8 +293,7 @@ static esp_err_t generate_burst(scope_lesson_instance_t *instance)
 
 static esp_err_t generate_missing_pulse(scope_lesson_instance_t *instance)
 {
-    uint32_t frequency = instance->difficulty == 1 ? choose((uint32_t[]){200, 500, 1000}, 3) :
-                         random_range(300, instance->difficulty == 2 ? 1500 : 2500);
+    uint32_t frequency = instance->difficulty == 1 ? choose((uint32_t[]){200, 500, 1000}, 3) : random_range(300, instance->difficulty == 2 ? 1500 : 2500);
     uint32_t period_us = (1000000U + frequency / 2U) / frequency;
     uint32_t high_us = period_us / 2U;
     uint32_t slots = random_range(6, instance->difficulty == 1 ? 8 : 12);
@@ -327,7 +331,7 @@ static esp_err_t generate_servo(scope_lesson_instance_t *instance)
     instance->signal.data.sequence.loop = true;
     ESP_RETURN_ON_ERROR(append_segment(instance, true, pulse_us), "LESSONS", "Servo HIGH failed");
     ESP_RETURN_ON_ERROR(append_segment(instance, false, 20000U - pulse_us), "LESSONS", "Servo LOW failed");
-    instance->realized[0] = (scope_realized_channel_t){ 50, 20000, pulse_us, (uint8_t)((pulse_us + 100U) / 200U) };
+    instance->realized[0] = (scope_realized_channel_t){ 50, 20000, pulse_us, (uint8_t)((pulse_us * 100U + 10000U) / 20000U) };
     instance->parameters.servo.target_angle_deg = angle;
     snprintf(instance->context, sizeof(instance->context),
              "Ein Modellbauservo bildet 1,0–2,0 ms linear auf 0–180° ab.");
@@ -633,7 +637,7 @@ static esp_err_t generate_gated_pwm(scope_lesson_instance_t *instance)
     uint32_t pwm_frequency = (1000000U + pwm_period / 2U) / pwm_period;
     instance->realized[0] = (scope_realized_channel_t){ 0, common_duration, gate_duration, 0 };
     instance->realized[1] = (scope_realized_channel_t){ pwm_frequency, pwm_period, pwm_high,
-                                                        (uint8_t)((100U * pwm_high) / pwm_period) };
+                                                        (uint8_t)((100U * pwm_high + pwm_period / 2U) / pwm_period) };
     instance->parameters.gated_pwm.start_delay_us = start_delay;
     instance->parameters.gated_pwm.pulse_count = pulse_count;
     snprintf(instance->context, sizeof(instance->context),
@@ -747,9 +751,11 @@ const scope_lesson_definition_t *scopebuddy_lesson_at(size_t index)
 esp_err_t scopebuddy_generate_lesson(scope_lesson_id_t id, uint8_t difficulty,
                                      scope_lesson_instance_t *instance)
 {
-    if (instance == NULL || (size_t)id >= scopebuddy_lesson_count() || difficulty < 1 || difficulty > 3) {
+    if (instance == NULL || (size_t)id >= scopebuddy_lesson_count() || difficulty < 1 || difficulty > 3) 
+    {
         return ESP_ERR_INVALID_ARG;
     }
+    
     memset(instance, 0, sizeof(*instance));
     instance->lesson = &lessons[id];
     instance->difficulty = difficulty;
@@ -777,13 +783,14 @@ esp_err_t scopebuddy_generate_lesson(scope_lesson_id_t id, uint8_t difficulty,
     return err;
 }
 
-void scopebuddy_update_effective_pwm(scope_lesson_instance_t *instance,
-                                     uint32_t frequency_a_hz, uint8_t duty_a_percent,
-                                     uint32_t frequency_b_hz, uint8_t duty_b_percent)
+void scopebuddy_update_effective_pwm(scope_lesson_instance_t *instance, uint32_t frequency_a_hz, uint8_t duty_a_percent, uint32_t frequency_b_hz, uint8_t duty_b_percent)
 {
-    if (instance == NULL) return;
+    if (instance == NULL) 
+        return;
+        
     set_realized_pwm(&instance->realized[0], frequency_a_hz, duty_a_percent);
-    if (frequency_b_hz > 0) set_realized_pwm(&instance->realized[1], frequency_b_hz, duty_b_percent);
+    if (frequency_b_hz > 0) 
+        set_realized_pwm(&instance->realized[1], frequency_b_hz, duty_b_percent);
     format_pwm_measurements(instance);
     instance->signature = calculate_signature(instance);
 }

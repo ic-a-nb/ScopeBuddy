@@ -3,13 +3,14 @@
 #include "driver/rmt_tx.h"
 /*——————————————————————————————————————Header file declaration end——————————————————————————————————————*/
 
-#define WAVE_GPIO              GPIO_NUM_48
-#define WAVE_GPIO_SECONDARY    GPIO_NUM_47
+#define WAVE_GPIO              GPIO_NUM_49
+#define WAGE_GPIO_NBR		   49
+#define WAVE_GPIO_SECONDARY    GPIO_NUM_50
 #define WAVE_LEDC_MODE         LEDC_LOW_SPEED_MODE
-#define WAVE_LEDC_TIMER        LEDC_TIMER_0
-#define WAVE_LEDC_CHANNEL      LEDC_CHANNEL_0
+#define WAVE_LEDC_TIMER        LEDC_TIMER_1
+#define WAVE_LEDC_CHANNEL      LEDC_CHANNEL_1
 #define WAVE_DUTY_RESOLUTION   LEDC_TIMER_10_BIT
-#define WAVE_DUTY_MAX          ((1U << 10) - 1U)
+#define WAVE_DUTY_MAX          (1U << 10)
 #define SEQUENCE_RMT_RESOLUTION_HZ 1000000U
 #define SEQUENCE_RMT_SYMBOLS       48U
 #define SEQUENCE_RMT_MAX_DURATION  32767U
@@ -29,98 +30,157 @@ static sequence_output_t sequence_outputs[] = {
 };
 static rmt_sync_manager_handle_t sequence_sync_manager;
 
-esp_err_t gpio_extra_init()                    // Function to initialize GPIO48 as output
-{
-    const gpio_config_t gpio_cofig = {         // Define GPIO configuration structure
-        .pin_bit_mask = (1ULL << 48),          // Select GPIO48 by setting bit 48 in the mask
-        .mode = GPIO_MODE_OUTPUT,              // Configure GPIO48 as output mode
-        .pull_up_en = false,                   // Disable internal pull-up resistor
-        .pull_down_en = false,                 // Disable internal pull-down resistor
-        .intr_type = GPIO_INTR_DISABLE,        // Disable GPIO interrupt for this pin
-    };
-    return gpio_config(&gpio_cofig);           // Apply the configuration and report any failure
-}
-
-esp_err_t gpio_extra_set_level(bool level)     // Function to set output level of GPIO48
-{
-    return gpio_set_level(48, level);          // Set GPIO48 and report any failure
-}
-
 esp_err_t gpio_wave_init(uint32_t frequency_hz, uint8_t duty_percent)
 {
-    if (frequency_hz < 10 || frequency_hz > 20000 || duty_percent < 1 || duty_percent > 99) {
+    if (frequency_hz < 10 ||
+        frequency_hz > 20000 ||
+        duty_percent < 1 ||
+        duty_percent > 99) {
         return ESP_ERR_INVALID_ARG;
     }
 
     ledc_timer_config_t timer = {
-        .speed_mode = WAVE_LEDC_MODE,
+        .speed_mode      = WAVE_LEDC_MODE,
         .duty_resolution = WAVE_DUTY_RESOLUTION,
-        .timer_num = WAVE_LEDC_TIMER,
-        .freq_hz = frequency_hz,
-        /* All supported output frequencies (10 Hz to 20 kHz) fit comfortably
-         * with the 40 MHz crystal and 10-bit resolution. A fixed source avoids
-         * runtime clock-source changes while hard challenges are switching. */
-        .clk_cfg = LEDC_USE_XTAL_CLK,
+        .timer_num       = WAVE_LEDC_TIMER,
+        .freq_hz         = frequency_hz,
+        .clk_cfg         = LEDC_USE_XTAL_CLK,
     };
-    ESP_RETURN_ON_ERROR(ledc_timer_config(&timer), EXTRA_TAG, "LEDC timer setup failed");
+
+    ESP_RETURN_ON_ERROR(
+        ledc_timer_config(&timer),
+        EXTRA_TAG,
+        "LEDC timer setup failed");
 
     wave_duty_percent = duty_percent;
+
+    uint32_t duty =
+        (WAVE_DUTY_MAX * (uint32_t)duty_percent + 50U) / 100U;
+
     ledc_channel_config_t channel = {
-        .gpio_num = WAVE_GPIO,
+        .gpio_num   = WAVE_GPIO,
         .speed_mode = WAVE_LEDC_MODE,
-        .channel = WAVE_LEDC_CHANNEL,
-        .intr_type = LEDC_INTR_DISABLE,
-        .timer_sel = WAVE_LEDC_TIMER,
-        .duty = 0,
-        .hpoint = 0,
+        .channel    = WAVE_LEDC_CHANNEL,
+        .intr_type  = LEDC_INTR_DISABLE,
+        .timer_sel  = WAVE_LEDC_TIMER,
+        .duty       = duty,
+        .hpoint     = 0,
     };
+
     return ledc_channel_config(&channel);
 }
 
+
 esp_err_t gpio_wave_start(void)
 {
-    ESP_RETURN_ON_ERROR(gpio_sequence_stop(), EXTRA_TAG, "Stopping RMT output failed");
-    ESP_RETURN_ON_ERROR(ledc_set_pin(WAVE_GPIO, WAVE_LEDC_MODE, WAVE_LEDC_CHANNEL),
-                        EXTRA_TAG, "Routing LEDC output failed");
-    ESP_RETURN_ON_ERROR(ledc_set_duty(WAVE_LEDC_MODE, WAVE_LEDC_CHANNEL,
-                                      (WAVE_DUTY_MAX * wave_duty_percent) / 100U),
-                        EXTRA_TAG, "Setting wave duty failed");
-    return ledc_update_duty(WAVE_LEDC_MODE, WAVE_LEDC_CHANNEL);
+    /*
+     * RMT muss GPIO49 vollständig freigeben,
+     * bevor LEDC den Pin verwendet.
+     */
+    ESP_RETURN_ON_ERROR(
+        gpio_sequence_stop(),
+        EXTRA_TAG,
+        "Stopping RMT output failed");
+
+    uint32_t duty =
+        (WAVE_DUTY_MAX * (uint32_t)wave_duty_percent + 50U) / 100U;
+
+    ESP_LOGI(EXTRA_TAG,
+             "LEDC start: duty=%" PRIu8 "%% -> raw=%" PRIu32,
+             wave_duty_percent,
+             duty);
+
+    /*
+     * KEIN ledc_set_pin() hier.
+     *
+     * GPIO49 wurde bereits in ledc_channel_config()
+     * dem LEDC-Kanal zugewiesen.
+     */
+    ESP_RETURN_ON_ERROR(
+        ledc_set_duty(WAVE_LEDC_MODE,
+                      WAVE_LEDC_CHANNEL,
+                      duty),
+        EXTRA_TAG,
+        "Setting wave duty failed");
+
+    ESP_RETURN_ON_ERROR(
+        ledc_update_duty(WAVE_LEDC_MODE,
+                         WAVE_LEDC_CHANNEL),
+        EXTRA_TAG,
+        "Updating wave duty failed");
+
+    ESP_LOGI(EXTRA_TAG,
+             "LEDC actual duty=%" PRIu32 ", freq=%" PRIu32,
+             (uint32_t)((WAVE_DUTY_MAX * (uint32_t)wave_duty_percent + 50U) / 100U),
+             ledc_get_freq(WAVE_LEDC_MODE,
+                           WAVE_LEDC_TIMER));
+
+    return ESP_OK;
 }
 
 esp_err_t gpio_wave_stop(void)
 {
-    return ledc_stop(WAVE_LEDC_MODE, WAVE_LEDC_CHANNEL, 0);
+    /*
+     * LEDC stoppen und GPIO auf LOW halten.
+     *
+     * Der LEDC-Kanal bleibt konfiguriert.
+     */
+    return ledc_stop(WAVE_LEDC_MODE,
+                     WAVE_LEDC_CHANNEL,
+                     0);
 }
 
 esp_err_t gpio_wave_set_frequency(uint32_t frequency_hz)
 {
-    if (frequency_hz < 10 || frequency_hz > 20000) {
+    if (frequency_hz < 50 ||
+        frequency_hz > 20000) {
         return ESP_ERR_INVALID_ARG;
     }
-    return ledc_set_freq(WAVE_LEDC_MODE, WAVE_LEDC_TIMER, frequency_hz);
+
+    ESP_LOGI(EXTRA_TAG,
+             "gpio_wave_set_frequency %" PRIu32 " Hz",
+             frequency_hz);
+
+    return ledc_set_freq(WAVE_LEDC_MODE,
+                         WAVE_LEDC_TIMER,
+                         frequency_hz);
 }
 
 esp_err_t gpio_wave_set_duty(uint8_t duty_percent)
 {
-    if (duty_percent < 1 || duty_percent > 99) {
+    if (duty_percent < 1 ||
+        duty_percent > 99) {
         return ESP_ERR_INVALID_ARG;
     }
+
     wave_duty_percent = duty_percent;
-    ESP_RETURN_ON_ERROR(ledc_set_duty(WAVE_LEDC_MODE, WAVE_LEDC_CHANNEL,
-                                      (WAVE_DUTY_MAX * wave_duty_percent) / 100U),
-                        EXTRA_TAG, "Setting wave duty failed");
-    return ledc_update_duty(WAVE_LEDC_MODE, WAVE_LEDC_CHANNEL);
+
+    uint32_t duty =
+        (WAVE_DUTY_MAX * (uint32_t)duty_percent + 50U) / 100U;
+
+    ESP_LOGI(EXTRA_TAG, "gpio_wave_set_duty %" PRIu8 "%% -> raw %" PRIu32, duty_percent, duty);
+
+    ESP_RETURN_ON_ERROR(
+        ledc_set_duty(WAVE_LEDC_MODE,
+                      WAVE_LEDC_CHANNEL,
+                      duty),
+        EXTRA_TAG,
+        "Setting wave duty failed");
+
+    return ledc_update_duty(WAVE_LEDC_MODE,
+                            WAVE_LEDC_CHANNEL);
 }
 
 esp_err_t gpio_wave_get_effective(uint32_t *frequency_hz, uint8_t *duty_percent)
 {
-    if (frequency_hz == NULL || duty_percent == NULL) return ESP_ERR_INVALID_ARG;
+    if (frequency_hz == NULL || duty_percent == NULL) 
+        return ESP_ERR_INVALID_ARG;
+
     uint32_t frequency = ledc_get_freq(WAVE_LEDC_MODE, WAVE_LEDC_TIMER);
-    if (frequency == 0) return ESP_ERR_INVALID_STATE;
-    uint32_t duty = ledc_get_duty(WAVE_LEDC_MODE, WAVE_LEDC_CHANNEL);
+    if (frequency == 0) 
+        return ESP_ERR_INVALID_STATE;
     *frequency_hz = frequency;
-    *duty_percent = (uint8_t)((duty * 100U + WAVE_DUTY_MAX / 2U) / WAVE_DUTY_MAX);
+    *duty_percent = wave_duty_percent;
     return ESP_OK;
 }
 
@@ -231,6 +291,7 @@ static esp_err_t compile_sequence(const gpio_wave_segment_t *segments, size_t se
     return ESP_OK;
 }
 
+/*
 esp_err_t gpio_sequence_pair_stop(void)
 {
     esp_err_t first_error = ESP_OK;
@@ -250,6 +311,115 @@ esp_err_t gpio_sequence_pair_stop(void)
             if (err != ESP_OK && first_error == ESP_OK) first_error = err;
         }
     }
+    return first_error;
+}
+*/
+
+esp_err_t gpio_sequence_pair_stop(void)
+{
+    esp_err_t first_error = ESP_OK;
+
+    /*
+     * Sync Manager zuerst entfernen.
+     */
+    if (sequence_sync_manager) {
+
+        esp_err_t err =
+            rmt_del_sync_manager(sequence_sync_manager);
+
+        if (err != ESP_OK) {
+            first_error = err;
+        } else {
+            sequence_sync_manager = NULL;
+        }
+    }
+
+    /*
+     * Beide RMT-Ausgänge stoppen.
+     */
+    for (size_t index = 0; index < 2; ++index) {
+
+        sequence_output_t *output =
+            &sequence_outputs[index];
+
+        if (output->channel == NULL)
+            continue;
+
+        /*
+         * RMT deaktivieren.
+         */
+        if (output->enabled) {
+
+            esp_err_t err =
+                rmt_disable(output->channel);
+
+            if (err != ESP_OK) {
+
+                if (first_error == ESP_OK)
+                    first_error = err;
+
+            } else {
+
+                output->enabled = false;
+            }
+        }
+
+        /*
+         * RMT-Channel vollständig löschen.
+         *
+         * Wichtig für GPIO49/GPIO50:
+         * Der RMT-Channel darf nicht weiter als
+         * Peripherie-Ausgang registriert bleiben.
+         */
+        esp_err_t err =
+            rmt_del_channel(output->channel);
+
+        if (err != ESP_OK) {
+
+            if (first_error == ESP_OK)
+                first_error = err;
+
+        } else {
+
+            output->channel = NULL;
+        }
+
+        /*
+         * Encoder löschen.
+         */
+        if (output->encoder) {
+
+            err = rmt_del_encoder(output->encoder);
+
+            if (err != ESP_OK) {
+
+                if (first_error == ESP_OK)
+                    first_error = err;
+
+            } else {
+
+                output->encoder = NULL;
+            }
+        }
+
+        /*
+         * Pin definiert LOW setzen.
+         *
+         * Das erst machen, nachdem der RMT-Channel
+         * gelöscht wurde.
+         */
+        if (output->channel == NULL) {
+
+            err = drive_output_low(output);
+
+            if (err != ESP_OK &&
+                first_error == ESP_OK) {
+
+                first_error = err;
+            }
+        }
+    }
+
     return first_error;
 }
 

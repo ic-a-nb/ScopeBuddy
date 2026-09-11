@@ -19,11 +19,11 @@
 #define DISPLAY_ERROR(fmt, ...) ESP_LOGE(DISPLAY_TAG, fmt, ##__VA_ARGS__)  
 
 // Touch panel resolution
-#define V_size 480      // Vertical resolution (Y-axis)
-#define H_size 800     // Horizontal resolution (X-axis)
+#define V_size 600      // Vertical resolution (Y-axis)
+#define H_size 1024     // Horizontal resolution (X-axis)
 
 // GPIO pins for GT911 touch panel
-#define Touch_GPIO_RST 36   // Reset pin
+#define Touch_GPIO_RST 40   // Reset pin
 #define Touch_GPIO_INT 42   // Interrupt pin
 
 extern esp_lcd_touch_handle_t tp;

@@ -5,6 +5,10 @@
 #include "esp_system.h"
 #include "nvs_flash.h"
 
+/* LDO channel handle */
+static esp_ldo_channel_handle_t ldo3 = NULL;
+static esp_ldo_channel_handle_t ldo4 = NULL;
+
 static bool wave_hardware_ready;
 
 static const char *reset_reason_name(esp_reset_reason_t reason)
@@ -46,7 +50,23 @@ static void init_fail_handler(const char *module_name, esp_err_t err) {
 static void system_init(void) {
     esp_err_t err = ESP_OK;
 
-    // 1. Initialize I2C (required for touch chip)
+    // 1. Initialize LDO (required for screen)
+    esp_ldo_channel_config_t ldo3_cof = {
+        .chan_id = 3,
+        .voltage_mv = 2500,
+    };
+    err = esp_ldo_acquire_channel(&ldo3_cof, &ldo3);
+    if (err != ESP_OK) init_fail_handler("ldo3", err);
+
+    esp_ldo_channel_config_t ldo4_cof = {
+        .chan_id = 4,
+        .voltage_mv = 3300,
+    };
+    err = esp_ldo_acquire_channel(&ldo4_cof, &ldo4);
+    if (err != ESP_OK) init_fail_handler("ldo4", err);
+    MAIN_INFO("LDO3 and LDO4 init success");
+	
+    // 2. Initialize I2C (required for touch chip)
     MAIN_INFO("Initializing I2C...");
     err = i2c_init();
     if (err != ESP_OK) init_fail_handler("I2C", err);
@@ -54,18 +74,12 @@ static void system_init(void) {
 
     vTaskDelay(200 / portTICK_PERIOD_MS);
 
-    // 2. Initialize stc8 
-    err = stc8_i2c_init();
-    if (err != ESP_OK)
-        init_fail_handler("stc8h1kxx", err);
-    MAIN_INFO("stc8 init success");  // Print success log
-
     // 3. Initialize touch panel (low-level driver)
     MAIN_INFO("Initializing touch panel...");
     err = touch_init();
     if (err != ESP_OK) init_fail_handler("Touch", err);
     MAIN_INFO("Touch panel init success");
-
+	
     // 4. Initialize LCD hardware and LVGL (must initialize before turning on backlight)
     err = display_init();
     if (err != ESP_OK) init_fail_handler("LCD", err);
@@ -76,17 +90,16 @@ static void system_init(void) {
     if (err != ESP_OK) init_fail_handler("LCD Backlight", err);
     MAIN_INFO("LCD backlight opened (brightness: 100)");
 
-    // 6. Initialize hardware PWM on GPIO48, initially stopped
-    MAIN_INFO("Initializing GPIO48 waveform generator...");
+    // 6. Initialize hardware PWM on GPIO49, initially stopped
+    MAIN_INFO("Initializing GPIO49 waveform generator...");
     err = gpio_wave_init(1000, 50);
-    if (err == ESP_OK) err = gpio_wave_stop();
+	if (err == ESP_OK) err = gpio_wave_stop();
     wave_hardware_ready = (err == ESP_OK);
     if (wave_hardware_ready) {
         MAIN_INFO("Waveform generator ready (1000 Hz, 50%% duty, stopped)");
     } else {
         MAIN_ERROR("Waveform generator unavailable: %s", esp_err_to_name(err));
     }
-
 }
 
 void app_main(void)
@@ -117,6 +130,7 @@ void app_main(void)
     lvgl_port_unlock();
     MAIN_INFO("UI initialized successfully");
 
+/*
     // Initialize encoder only after the first UI frame exists. Encoder
     // failure must never prevent ScopeBuddy from showing its interface.
     MAIN_INFO("Initializing rotary encoder...");
@@ -126,4 +140,5 @@ void app_main(void)
     } else {
         MAIN_ERROR("Encoder unavailable: %s", esp_err_to_name(err));
     }
+	*/
 }

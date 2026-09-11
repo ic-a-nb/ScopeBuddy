@@ -13,7 +13,6 @@
 #include "bsp_display.h"
 #include "bsp_illuminate.h"
 #include "bsp_i2c.h"
-#include "bsp_stc8h1kxx.h"
 /*——————————————————————————————————————Header file declaration end——————————————————————————————————————*/
 
 /*——————————————————————————————————————————Variable declaration—————————————————————————————————————————*/
