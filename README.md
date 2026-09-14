@@ -80,4 +80,4 @@ licenses.
 [crowpanel-wiki]: https://www.elecrow.com/wiki/CrowPanel_Advanced_9inch_ESP32-P4_HMI_AI_Display_1024x600_IPS.html
 [crowpanel-github]: https://github.com/Elecrow-RD/CrowPanel-Advanced-9inch-ESP32-P4-HMI-AI-Display-1024x600-IPS-Touch-Screen
 [encoder-amazon]: https://amzn.eu/d/03NJfjfa
-[original-repository-link] https://github.com/johannesboernsen/ScopeBuddy
+[original-repository-link]: https://github.com/johannesboernsen/ScopeBuddy
