@@ -1,6 +1,8 @@
-# ScopeBuddy Fork, changes for the 9" Version V1.0
+# ScopeBuddy-9inch
+*A modified version of [ScopeBuddy](https://github.com/johannesboernsen/ScopeBuddy) for the Elecrow CrowPanel Advanced 9-inch display.*
 
-This project is an adapted version of [ScopeBuddy](original-repository-link), licensed under the [ScopeBuddy Community License 1.0](license-link).
+This project is an adapted version of [ScopeBuddy](https://github.com/johannesboernsen/ScopeBuddy), licensed under the [ScopeBuddy Community License 1.0](LICENSE.md).
+It is published under the **distinct name "ScopeBuddy-9inch"** to comply with the license requirements.
 
 ## What you need
 
@@ -45,6 +47,7 @@ components. `dependencies.lock` pins the component versions used for release
 builds.
 
 ## License
+This project is published under the name **"ScopeBuddy-9inch"** to comply with the license requirement for a distinct name.
 This project is a modified version of ScopeBuddy and is subject to the same license terms.
 
 Original ScopeBuddy contributions are available under the
