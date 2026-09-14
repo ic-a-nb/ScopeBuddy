@@ -10,9 +10,9 @@ Always disconnect USB and any other power source before wiring.
 
 | Encoder | CrowPanel signal |
 | --- | --- |
-| `CLK` | `IO29` |
-| `DT` | `IO30` |
-| `SW` | `IO32` |
+| `CLK` | `IO25` |
+| `DT` | `IO27` |
+| `SW` | `IO28` |
 | `+` | `3V3` |
 | `GND` | `GND` |
 
