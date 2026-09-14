@@ -1643,7 +1643,7 @@ static void build_diagnostics_screen(void)
     lv_obj_set_style_text_line_space(software_keys, 4, 0);
     char software_text[256];
     snprintf(software_text, sizeof(software_text),
-             "%s\n%s %s\n%s\n%s\n%s\nGPIO48\nGPIO50\nGPIO%d\nGPIO%d\nGPIO%d\n3V3\nGND",
+             "%s\n%s %s\n%s\n%s\n%s\nGPIO49\nGPIO50\nGPIO%d\nGPIO%d\nGPIO%d\n3V3\nGND",
              SCOPEBUDDY_FIRMWARE_VERSION, app->date, app->time, app->idf_ver,
              CONFIG_IDF_TARGET, hardware_ready ? "bereit" : "nicht bereit",
              ENCODER_GPIO_CLK, ENCODER_GPIO_DT, ENCODER_GPIO_SW);
