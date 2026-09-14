@@ -1,10 +1,8 @@
-# ScopeBuddy
+# ScopeBuddy Fork, changes for the 9" Version V1.0
 
 ScopeBuddy turns an Elecrow CrowPanel Advanced 5-inch ESP32-P4 display into a
 hands-on oscilloscope trainer. It generates real 3.3 V digital signals, presents
 randomized measurement tasks, and reveals the expected values on demand.
-
-![ScopeBuddy in its printed enclosure next to an oscilloscope displaying a generated square wave](docs/images/scopebuddy-oscilloscope-training.jpg)
 
 Firmware 0.5.1 provides 15 single- and dual-channel lessons. The display can be
 operated by touch or with an optional rotary encoder.
@@ -13,7 +11,7 @@ operated by touch or with an optional rotary encoder.
 
 | Component | Requirement | References and sources |
 | --- | --- | --- |
-| Display | Elecrow CrowPanel Advanced 5-inch, ESP32-P4, 800 × 480 (`DHE04005D`) | [Official product page][crowpanel-product] · [Elecrow documentation][crowpanel-wiki] · [Amazon.de][crowpanel-amazon] |
+| Display | Elecrow CrowPanel Advanced 9-inch, ESP32-P4, 1024 × 600 (`DHE04209D`) | [Official product page][crowpanel-product] · [Elecrow documentation][crowpanel-wiki] · [Github][crowpanel-github] |
 | Oscilloscope | One channel for the basic lessons; two channels for all lessons | Use high-impedance inputs and probes suitable for 3.3 V logic |
 | USB cable | USB data cable for installing the firmware | Charge-only cables do not work |
 | Rotary encoder (optional) | GIAK KY-040 module or a compatible 3.3 V encoder module | [Wiring guide](ENCODER.md) · [Amazon.de][encoder-amazon] |
@@ -154,7 +152,7 @@ licenses.
 - [Hardware diagnostics and validation](docs/HARDWARE_VALIDATION.md)
 - [Maintainer and release guide](docs/MAINTAINING.md)
 
-[crowpanel-product]: https://www.elecrow.com/crowpanel-advanced-5inch-esp32-p4-hmi-ai-display-800x480-ips-touch-screen-with-wifi-6.html
-[crowpanel-wiki]: https://www.elecrow.com/wiki/CrowPanel_Advanced_5inch_ESP32-P4_HMI_AI_Display_800x480_IPS_Touch_Screen_with_WiFi_6.html
-[crowpanel-amazon]: https://amzn.eu/d/075Lfm2j
+[crowpanel-product]: https://www.elecrow.com/crowpanel-advanced-9inch-esp32-p4-hmi-ai-display-1024x600-ips-touch-screen-wifi-6-support.html
+[crowpanel-wiki]: https://www.elecrow.com/wiki/CrowPanel_Advanced_9inch_ESP32-P4_HMI_AI_Display_1024x600_IPS.html
+[crowpanel-github]: https://github.com/Elecrow-RD/CrowPanel-Advanced-9inch-ESP32-P4-HMI-AI-Display-1024x600-IPS-Touch-Screen
 [encoder-amazon]: https://amzn.eu/d/03NJfjfa
