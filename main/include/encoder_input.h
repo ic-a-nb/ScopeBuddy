@@ -9,9 +9,9 @@
  * optional radio module, so that module must be disabled when the encoder is
  * connected.
  */
-#define ENCODER_GPIO_CLK 29
-#define ENCODER_GPIO_DT  30
-#define ENCODER_GPIO_SW  32
+#define ENCODER_GPIO_CLK 25
+#define ENCODER_GPIO_DT  27
+#define ENCODER_GPIO_SW  28
 
 /** Initialize the rotary encoder and register it as an LVGL input device. */
 esp_err_t encoder_input_init(void);

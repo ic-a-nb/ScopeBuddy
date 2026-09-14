@@ -95,9 +95,12 @@ static void system_init(void) {
     err = gpio_wave_init(1000, 50);
 	if (err == ESP_OK) err = gpio_wave_stop();
     wave_hardware_ready = (err == ESP_OK);
-    if (wave_hardware_ready) {
+    if(wave_hardware_ready) 
+	{
         MAIN_INFO("Waveform generator ready (1000 Hz, 50%% duty, stopped)");
-    } else {
+    } 
+	else 
+	{
         MAIN_ERROR("Waveform generator unavailable: %s", esp_err_to_name(err));
     }
 }
@@ -130,7 +133,6 @@ void app_main(void)
     lvgl_port_unlock();
     MAIN_INFO("UI initialized successfully");
 
-/*
     // Initialize encoder only after the first UI frame exists. Encoder
     // failure must never prevent ScopeBuddy from showing its interface.
     MAIN_INFO("Initializing rotary encoder...");
@@ -140,5 +142,4 @@ void app_main(void)
     } else {
         MAIN_ERROR("Encoder unavailable: %s", esp_err_to_name(err));
     }
-	*/
 }
