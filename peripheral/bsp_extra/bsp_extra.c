@@ -73,49 +73,15 @@ esp_err_t gpio_wave_init(uint32_t frequency_hz, uint8_t duty_percent)
 
 esp_err_t gpio_wave_start(void)
 {
-    /*
-     * RMT muss GPIO49 vollständig freigeben,
-     * bevor LEDC den Pin verwendet.
-     */
-    ESP_RETURN_ON_ERROR(
-        gpio_sequence_stop(),
-        EXTRA_TAG,
-        "Stopping RMT output failed");
+	ESP_LOGI(EXTRA_TAG, "gpio_wave_start");
 
-    uint32_t duty =
-        (WAVE_DUTY_MAX * (uint32_t)wave_duty_percent + 50U) / 100U;
-
-    ESP_LOGI(EXTRA_TAG,
-             "LEDC start: duty=%" PRIu8 "%% -> raw=%" PRIu32,
-             wave_duty_percent,
-             duty);
-
-    /*
-     * KEIN ledc_set_pin() hier.
-     *
-     * GPIO49 wurde bereits in ledc_channel_config()
-     * dem LEDC-Kanal zugewiesen.
-     */
-    ESP_RETURN_ON_ERROR(
-        ledc_set_duty(WAVE_LEDC_MODE,
-                      WAVE_LEDC_CHANNEL,
-                      duty),
-        EXTRA_TAG,
-        "Setting wave duty failed");
-
-    ESP_RETURN_ON_ERROR(
-        ledc_update_duty(WAVE_LEDC_MODE,
-                         WAVE_LEDC_CHANNEL),
-        EXTRA_TAG,
-        "Updating wave duty failed");
-
-    ESP_LOGI(EXTRA_TAG,
-             "LEDC actual duty=%" PRIu32 ", freq=%" PRIu32,
-             (uint32_t)((WAVE_DUTY_MAX * (uint32_t)wave_duty_percent + 50U) / 100U),
-             ledc_get_freq(WAVE_LEDC_MODE,
-                           WAVE_LEDC_TIMER));
-
-    return ESP_OK;
+    ESP_RETURN_ON_ERROR(gpio_sequence_stop(), EXTRA_TAG, "Stopping RMT output failed");
+    ESP_RETURN_ON_ERROR(ledc_set_pin(WAVE_GPIO, WAVE_LEDC_MODE, WAVE_LEDC_CHANNEL),
+                        EXTRA_TAG, "Routing LEDC output failed");
+    ESP_RETURN_ON_ERROR(ledc_set_duty(WAVE_LEDC_MODE, WAVE_LEDC_CHANNEL,
+                                      (WAVE_DUTY_MAX * wave_duty_percent) / 100U),
+                        EXTRA_TAG, "Setting wave duty failed");
+    return ledc_update_duty(WAVE_LEDC_MODE, WAVE_LEDC_CHANNEL);
 }
 
 esp_err_t gpio_wave_stop(void)
@@ -132,18 +98,14 @@ esp_err_t gpio_wave_stop(void)
 
 esp_err_t gpio_wave_set_frequency(uint32_t frequency_hz)
 {
-    if (frequency_hz < 50 ||
-        frequency_hz > 20000) {
+    if (frequency_hz < 50 || frequency_hz > 20000) 
+	{
         return ESP_ERR_INVALID_ARG;
     }
 
-    ESP_LOGI(EXTRA_TAG,
-             "gpio_wave_set_frequency %" PRIu32 " Hz",
-             frequency_hz);
+    ESP_LOGI(EXTRA_TAG, "gpio_wave_set_frequency %" PRIu32 " Hz", frequency_hz);
 
-    return ledc_set_freq(WAVE_LEDC_MODE,
-                         WAVE_LEDC_TIMER,
-                         frequency_hz);
+    return ledc_set_freq(WAVE_LEDC_MODE, WAVE_LEDC_TIMER,  frequency_hz);
 }
 
 esp_err_t gpio_wave_set_duty(uint8_t duty_percent)
@@ -160,12 +122,7 @@ esp_err_t gpio_wave_set_duty(uint8_t duty_percent)
 
     ESP_LOGI(EXTRA_TAG, "gpio_wave_set_duty %" PRIu8 "%% -> raw %" PRIu32, duty_percent, duty);
 
-    ESP_RETURN_ON_ERROR(
-        ledc_set_duty(WAVE_LEDC_MODE,
-                      WAVE_LEDC_CHANNEL,
-                      duty),
-        EXTRA_TAG,
-        "Setting wave duty failed");
+    ESP_RETURN_ON_ERROR(ledc_set_duty(WAVE_LEDC_MODE, WAVE_LEDC_CHANNEL, duty), EXTRA_TAG, "Setting wave duty failed");
 
     return ledc_update_duty(WAVE_LEDC_MODE,
                             WAVE_LEDC_CHANNEL);

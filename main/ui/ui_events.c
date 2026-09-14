@@ -1519,7 +1519,7 @@ static void build_settings_screen(void)
 
     lv_obj_t *home_button = lv_btn_create(ui_Screen1);
     remove_default_focus_outline(home_button);
-    lv_obj_set_pos(home_button, 727, 20);
+    lv_obj_set_pos(home_button, 950, 20);
     lv_obj_set_size(home_button, 48, 42);
     lv_obj_set_style_radius(home_button, 8, 0);
     lv_obj_set_style_bg_color(home_button, lv_color_hex(0x14263A), 0);
@@ -1607,7 +1607,7 @@ static void build_diagnostics_screen(void)
 
     lv_obj_t *home_button = lv_btn_create(ui_Screen1);
     remove_default_focus_outline(home_button);
-    lv_obj_set_pos(home_button, 727, 20);
+    lv_obj_set_pos(home_button, 950, 20);
     lv_obj_set_size(home_button, 48, 42);
     lv_obj_set_style_bg_color(home_button, lv_color_hex(0x14263A), 0);
     lv_obj_set_style_radius(home_button, 8, 0);
@@ -1619,7 +1619,7 @@ static void build_diagnostics_screen(void)
     lv_label_set_text(home_symbol, LV_SYMBOL_HOME);
     lv_obj_set_style_text_font(home_symbol, &lv_font_montserrat_24, 0);
     lv_obj_center(home_symbol);
-    lv_obj_t *tests_button = make_button(ui_Screen1, "HARDWARETESTS", 565, 20, 145, 42,
+    lv_obj_t *tests_button = make_button(ui_Screen1, "HARDWARETESTS", 795, 20, 145, 42,
                                          0x1455B8, hardware_tests_open_event, NULL);
     lv_obj_set_style_radius(tests_button, 8, 0);
     lv_obj_t *software_card = lv_obj_create(ui_Screen1);
@@ -1729,7 +1729,7 @@ static void build_hardware_tests_screen(void)
     make_label(ui_Screen1, "HARDWARETESTS", 250, 32,
                &lv_font_montserrat_14, 0x2684FF);
 
-    lv_obj_t *back_button = make_button(ui_Screen1, LV_SYMBOL_LEFT, 727, 20, 48, 42,
+    lv_obj_t *back_button = make_button(ui_Screen1, LV_SYMBOL_LEFT, 950, 20, 48, 42,
                                         0x14263A, hardware_tests_back_event, NULL);
     lv_obj_set_style_radius(back_button, 8, 0);
     lv_obj_set_style_text_font(lv_obj_get_child(back_button, 0), &lv_font_montserrat_24, 0);
@@ -1779,7 +1779,7 @@ static void build_scope_reset_screen(void)
 
     lv_obj_t *home_button = lv_btn_create(ui_Screen1);
     remove_default_focus_outline(home_button);
-    lv_obj_set_pos(home_button, 951, 20);
+    lv_obj_set_pos(home_button, 950, 20);
     lv_obj_set_size(home_button, 48, 42);
     lv_obj_set_style_radius(home_button, 8, 0);
     lv_obj_set_style_bg_color(home_button, lv_color_hex(0x14263A), 0);
@@ -1793,7 +1793,7 @@ static void build_scope_reset_screen(void)
     lv_obj_center(home_symbol);
 
     lv_obj_t *card = lv_obj_create(ui_Screen1);
-    lv_obj_set_pos(card, 80, 130);
+    lv_obj_set_pos(card, 180, 130);
     lv_obj_set_size(card, 640, 270);
     lv_obj_clear_flag(card, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_CLICKABLE);
     lv_obj_set_style_radius(card, 12, 0);
@@ -1855,7 +1855,7 @@ static void build_question_screen(void)
     snprintf(heading, sizeof(heading), "AUFGABE %lu", (unsigned long)question_number);
     lv_obj_t *home_button = lv_btn_create(ui_Screen1);
     remove_default_focus_outline(home_button);
-    lv_obj_set_pos(home_button, 727, 20);
+    lv_obj_set_pos(home_button, 950, 20);
     lv_obj_set_size(home_button, 48, 42);
     lv_obj_set_style_radius(home_button, 8, 0);
     lv_obj_set_style_bg_color(home_button, lv_color_hex(0x14263A), 0);
@@ -1937,7 +1937,7 @@ static void build_question_screen(void)
 
     if (!setting_reveal_values) 
     {
-        all_values_button = make_button(ui_Screen1, "ALLE WERTE\nANZEIGEN", 25, 386, 235, 56, 0x1455B8, solve_all_event, NULL);
+        all_values_button = make_button(ui_Screen1, "ALLE WERTE\nANZEIGEN", 25, 515, 235, 56, 0x1455B8, solve_all_event, NULL);
         lv_obj_set_style_radius(all_values_button, 9, 0);
         lv_obj_set_style_bg_opa(all_values_button, LV_OPA_TRANSP, 0);
         lv_obj_set_style_border_color(all_values_button, lv_color_hex(0x2684FF), 0);
@@ -1945,7 +1945,7 @@ static void build_question_screen(void)
         lv_obj_set_style_shadow_width(all_values_button, 0, 0);
         all_values_label = lv_obj_get_child(all_values_button, 0);
         lv_obj_set_style_text_color(all_values_label, lv_color_hex(0xDCE8F7), 0);
-        action_button = make_button(ui_Screen1, "AUSGEWÄHLTE WERTE\nANZEIGEN", 282, 386, 235, 56, 0x1455B8, solve_event, NULL);
+        action_button = make_button(ui_Screen1, "AUSGEWÄHLTE WERTE\nANZEIGEN", 400, 515, 235, 56, 0x1455B8, solve_event, NULL);
         lv_obj_set_style_radius(action_button, 9, 0);
         lv_obj_set_style_bg_opa(action_button, LV_OPA_TRANSP, 0);
         lv_obj_set_style_border_color(action_button, lv_color_hex(0x2684FF), 0);
@@ -1958,7 +1958,7 @@ static void build_question_screen(void)
         lv_obj_set_style_text_color(action_label, lv_color_hex(0x607895), LV_STATE_DISABLED);
         update_solution_buttons();
     }
-    advance_button = make_button(ui_Screen1, "NÄCHSTE\nMESSAUFGABE", 539, 386, 236, 56, 0x1455B8, advance_event, NULL);
+    advance_button = make_button(ui_Screen1, "NÄCHSTE\nMESSAUFGABE", 770, 515, 236, 56, 0x1455B8, advance_event, NULL);
     lv_obj_set_style_radius(advance_button, 9, 0);
 
     lv_group_t *encoder_group = lv_group_get_default();
