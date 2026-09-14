@@ -15,7 +15,7 @@ operated by touch or with an optional rotary encoder.
 | Oscilloscope | One channel for the basic lessons; two channels for all lessons | Use high-impedance inputs and probes suitable for 3.3 V logic |
 | USB cable | USB data cable for installing the firmware | Charge-only cables do not work |
 | Rotary encoder (optional) | GIAK KY-040 module or a compatible 3.3 V encoder module | [Wiring guide](ENCODER.md) · [Amazon.de][encoder-amazon] |
-| Enclosure (optional) | 3D-printable ScopeBuddy enclosure | [STL model](hardware/enclosure/ScopeBuddy.stl) · [Model notes](hardware/enclosure/README.md) |
+| Enclosure (optional) | The enclosure needs to be stretched to fit the 9-inch version. |
 
 The Amazon links are non-affiliate purchase links. Listings and availability can
 change; use the model names and electrical requirements above when selecting an
